@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Action\FetchProductAndStoreAction;
 use Illuminate\Console\Command;
 use App\Models\Product;
 use Illuminate\Support\Facades\Http;
@@ -14,19 +15,7 @@ class FetchProducts extends Command
 
     public function handle(): void
     {
-        $response = Http::get('https://fakestoreapi.com/products');
-        $products = $response->json();
-
-        Product::query()->truncate();
-        foreach ($products as $item) {
-            $product = Product::query()->create([
-                'name' => $item['title'],
-                'description' => $item['description'],
-                'price' => $item['price'],
-            ]);
-
-            event(new ProductAdded($product));
-        }
+        FetchProductAndStoreAction::execute();
 
         $this->info('Products fetched and stored.');
     }
